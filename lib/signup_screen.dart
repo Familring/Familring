@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // 추가: 응답을 JSON으로 디코딩하기 위해
+import 'dart:convert';
 
 class SignupScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -20,11 +20,15 @@ class SignupScreen extends StatelessWidget {
     }
 
     try {
-      var url = Uri.parse('http://127.0.0.1:8000/api/register/');
-      var response = await http.post(url, body: {
-        'username': username,
-        'password': password,
-      });
+      var url = Uri.parse('http://10.0.2.2:8000/api/register/');// 각자의 에뮬레이터 or web의 주소에 맞게 URL을 변경할 것
+      var response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'}, // 서버에 JSON형식의 데이터로 보낼 것임을 선언
+        body: jsonEncode({ //jsonEncode() 함수는 Dart의 Map을 JSON 형식의 문자열로 변환
+          'username': username,
+          'password': password,
+        }),
+      );
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -94,3 +98,4 @@ class SignupScreen extends StatelessWidget {
     );
   }
 }
+
