@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class BucketListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('홈'),
+        title: Text('버킷리스트'),
         backgroundColor: Colors.orange,
       ),
       body: Center(
         child: Text(
-          '환영합니당',
+          '버킷리스트 화면',
           style: TextStyle(fontSize: 24),
         ),
       ),

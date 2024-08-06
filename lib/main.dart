@@ -1,3 +1,5 @@
+import 'package:familring/bucket_list_screen.dart';
+import 'package:familring/calender_main_screen.dart';
 import 'package:familring/login_screen.dart';
 import 'package:familring/signup_screen.dart';
 import 'package:familring/welcome_screen.dart';
@@ -26,6 +28,9 @@ class MyApp extends StatelessWidget {
           '/login' : (context) => LoginScreen(),
           '/signup' : (context) => SignupScreen(),
           '/home' : (context) => MyHomePage(),
+          '/calender' : (context) => CalendarMainScreen(),
+          '/bucketlist' : (context) => BucketListScreen(),
+
         }
     );
   }
