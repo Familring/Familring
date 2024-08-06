@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Center(
         child: Text(
-          '환영합니다!',
+          '환영',
           style: TextStyle(fontSize: 24),
         ),
       ),

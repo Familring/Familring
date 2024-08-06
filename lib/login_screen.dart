@@ -27,6 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
+        setState(() {
+          _errorMessage = '';
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('로그인 성공')),
         );
@@ -93,3 +96,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
