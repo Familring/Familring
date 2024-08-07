@@ -67,10 +67,10 @@ class _CalendarComponentScreenState extends State<CalendarComponentScreen> {
                   child: ListTile(
                     leading: Icon(Icons.book, color: Colors.orange),
                     title: Text(
-                      '2024년 우리 가족 버킷리스트',
+                      '우리 가족 버킷리스트',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text('독서: 1년에 6권 독서하기'),
+                    subtitle: Text('우리 가족 만의 버킷리스트를 만들고 함께 실천해보세요!'),
                   ),
                 ),
               ),
@@ -99,118 +99,114 @@ class _CalendarComponentScreenState extends State<CalendarComponentScreen> {
                           ],
                         ),
                       ),
-                      TableCalendar(
-                        firstDay: DateTime.utc(2020, 1, 1),
-                        lastDay: DateTime.utc(2030, 12, 31),
-                        focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                        onDaySelected: _onDaySelected,
-                        eventLoader: _getEventsForDay,
-                        calendarStyle: CalendarStyle(
-                          todayTextStyle: TextStyle(color: Colors.black),
-                          todayDecoration: BoxDecoration(
-                            color: Colors.orangeAccent,
-                            shape: BoxShape.circle,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0), // 네비게이션 바와의 간격을 주기 위해 패딩 추가
+                        child: TableCalendar(
+                          firstDay: DateTime.utc(2020, 1, 1),
+                          lastDay: DateTime.utc(2030, 12, 31),
+                          focusedDay: _focusedDay,
+                          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                          onDaySelected: _onDaySelected,
+                          eventLoader: _getEventsForDay,
+                          calendarStyle: CalendarStyle(
+                            todayTextStyle: TextStyle(color: Colors.black),
+                            todayDecoration: BoxDecoration(
+                              color: Colors.orangeAccent,
+                              shape: BoxShape.circle,
+                            ),
+                            selectedDecoration: BoxDecoration(
+                              color: Colors.orange,
+                              shape: BoxShape.circle,
+                            ),
+                            markerDecoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                            outsideDaysVisible: false,
+                            weekendTextStyle: TextStyle(color: Colors.red),
+                            holidayTextStyle: TextStyle(color: Colors.red),
+                            cellMargin: EdgeInsets.all(6.0), // 행 하단의 줄을 제거하기 위해 셀 마진 설정
                           ),
-                          selectedDecoration: BoxDecoration(
-                            color: Colors.orange,
-                            shape: BoxShape.circle,
+                          headerStyle: HeaderStyle(
+                            formatButtonVisible: false,
+                            titleCentered: true,
+                            titleTextStyle: TextStyle(fontSize: 20, color: Colors.orange),
+                            leftChevronIcon: Icon(Icons.chevron_left, color: Colors.orange),
+                            rightChevronIcon: Icon(Icons.chevron_right, color: Colors.orange),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                            ),
                           ),
-                          markerDecoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                            weekendStyle: TextStyle(color: Colors.red),
                           ),
-                          outsideDaysVisible: false,
-                          weekendTextStyle: TextStyle(color: Colors.red),
-                          holidayTextStyle: TextStyle(color: Colors.red),
-                        ),
-                        headerStyle: HeaderStyle(
-                          formatButtonVisible: false,
-                          titleCentered: true,
-                          titleTextStyle: TextStyle(fontSize: 20, color: Colors.orange),
-                          leftChevronIcon: Icon(Icons.chevron_left, color: Colors.orange),
-                          rightChevronIcon: Icon(Icons.chevron_right, color: Colors.orange),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                          ),
-                        ),
-                        daysOfWeekStyle: DaysOfWeekStyle(
-                          weekendStyle: TextStyle(color: Colors.red),
-                        ),
-                        calendarBuilders: CalendarBuilders(
-                          dowBuilder: (context, day) {
-                            if (day.weekday == DateTime.sunday) {
-                              return Center(
-                                child: Text(
-                                  '일',
-                                  style: TextStyle(color: Colors.red),
+                          calendarBuilders: CalendarBuilders(
+                            dowBuilder: (context, day) {
+                              if (day.weekday == DateTime.sunday) {
+                                return Center(
+                                  child: Text(
+                                    '일',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                );
+                              } else if (day.weekday == DateTime.saturday) {
+                                return Center(
+                                  child: Text(
+                                    '토',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                );
+                              } else {
+                                return Center(
+                                  child: Text(
+                                    ['월', '화', '수', '목', '금'][day.weekday - 1],
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                );
+                              }
+                            },
+                            defaultBuilder: (context, day, focusedDay) {
+                              return Container(
+                                margin: const EdgeInsets.all(6.0),
+                                child: Center(
+                                  child: Text(
+                                    '${day.day}',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                               );
-                            } else if (day.weekday == DateTime.saturday) {
-                              return Center(
-                                child: Text(
-                                  '토',
-                                  style: TextStyle(color: Colors.blue),
+                            },
+                            selectedBuilder: (context, date, events) {
+                              return Container(
+                                margin: const EdgeInsets.all(6.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${date.day}',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               );
-                            } else {
-                              return Center(
-                                child: Text(
-                                  ['월', '화', '수', '목', '금'][day.weekday - 1],
-                                  style: TextStyle(color: Colors.black),
+                            },
+                            todayBuilder: (context, date, events) {
+                              return Container(
+                                margin: const EdgeInsets.all(6.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${date.day}',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                               );
-                            }
-                          },
-                          defaultBuilder: (context, day, focusedDay) {
-                            return Container(
-                              margin: const EdgeInsets.all(6.0),
-                              padding: const EdgeInsets.all(6.0),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Colors.grey.shade300),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${day.day}',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            );
-                          },
-                          selectedBuilder: (context, date, events) {
-                            return Container(
-                              margin: const EdgeInsets.all(6.0),
-                              padding: const EdgeInsets.all(6.0),
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${date.day}',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            );
-                          },
-                          todayBuilder: (context, date, events) {
-                            return Container(
-                              margin: const EdgeInsets.all(6.0),
-                              padding: const EdgeInsets.all(6.0),
-                              decoration: BoxDecoration(
-                                color: Colors.orangeAccent,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${date.day}',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            );
-                          },
+                            },
+                          ),
                         ),
                       ),
                     ],
