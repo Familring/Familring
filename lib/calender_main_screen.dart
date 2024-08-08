@@ -23,6 +23,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
     _selectedEvents = [];
     _focusedDay = DateTime.now();
     _selectedDay = DateTime.now();
+    _selectedEvents = _getEventsForDay(_selectedDay);
   }
 
   List<Event> _getEventsForDay(DateTime day) {
@@ -39,15 +40,82 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
     }
   }
 
-  void _addEvent() {
-    if (_events[_selectedDay] != null) {
-      _events[_selectedDay]!.add(Event('New Event'));
+  void _addEvent(DateTime date, String title) {
+    if (_events[date] != null) {
+      _events[date]!.add(Event(title));
     } else {
-      _events[_selectedDay] = [Event('New Event')];
+      _events[date] = [Event(title)];
     }
     setState(() {
       _selectedEvents = _getEventsForDay(_selectedDay);
     });
+  }
+
+  void _showAddEventDialog() {
+    DateTime selectedDate = _selectedDay;
+    String eventTitle = '';
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('일정 추가'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.calendar_today),
+                    title: Text("${selectedDate.toLocal()}".split(' ')[0]),
+                    onTap: () async {
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null && picked != selectedDate) {
+                        setState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      eventTitle = value;
+                    },
+                    decoration: InputDecoration(hintText: "일정 내용을 입력하세요"),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('취소'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('추가'),
+                  onPressed: () {
+                    if (eventTitle.isNotEmpty) {
+                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                      setState(() {
+                        _addEvent(selectedDate, eventTitle);
+                        _selectedDay = selectedDate; // 캘린더의 선택된 날짜를 업데이트
+                        _focusedDay = selectedDate;
+                        _selectedEvents = _getEventsForDay(_selectedDay);
+                      });
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -165,13 +233,23 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                 },
               ),
             ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _selectedEvents.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_selectedEvents[index].title),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(20.0), // FloatingActionButton의 패딩
         child: FloatingActionButton(
-          onPressed: _addEvent,
+          onPressed: _showAddEventDialog,
           backgroundColor: Colors.orange,
           child: Icon(Icons.add),
         ),

@@ -15,6 +15,7 @@ dependencies:
   http: ^0.13.3
   cupertino_icons: ^1.0.2
   table_calendar: ^3.0.5
+  shared_preferences: ^2.0.6
 
 
 dev_dependencies:
@@ -30,3 +31,5 @@ flutter:
     - images/home_icon.png
     - images/calender_icon.png
     - images/mypage_icon.png
+    - images/question.png
+    - images/mypage.png

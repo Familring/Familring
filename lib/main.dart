@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
           '/home' : (context) => MyHomePage(),
           '/calender' : (context) => CalendarMainScreen(),
           '/bucketlist' : (context) => BucketListScreen(),
-
+          '/today_question': (context) => QuestionListScreen(),
         }
     );
   }
