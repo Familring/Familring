@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class BucketListScreen extends StatefulWidget {
   @override
@@ -48,6 +50,17 @@ class _BucketListScreenState extends State<BucketListScreen> {
         );
       },
     );
+  }
+
+  void _fetchBucketList() async {
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/bucket/'));
+    if (response.statusCode == 200) {
+      setState(() {
+        _bucketList = json.decode(response.body);
+      });
+    } else {
+      throw Exception('Failed to load bucket list');
+    }
   }
 
   void _showCompletionDialog(int index) {
