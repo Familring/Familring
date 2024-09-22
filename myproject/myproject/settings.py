@@ -53,7 +53,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_SECURE = False  # 로컬 개발 환경에서는 False로 설정
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True  # 쿠키를 허용해야 세션이 작동함
+CORS_ALLOW_ORIGIN = ['http://localhost:63547']  # 클라이언트의 도메인
+CORS_ALLOW_HEADERS = ['content-type', 'X-CSRFToken']  # 필요한 헤더 허용
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

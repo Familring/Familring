@@ -2,6 +2,7 @@ from django.db import models
 
 # Family 모델
 class Family(models.Model):
+    family_id = models.AutoField(primary_key=True)
     family_name = models.CharField(max_length=255)
     date = models.DateField(auto_now_add=True)
     user = models.ForeignKey('User', on_delete=models.CASCADE)  # family 생성자
