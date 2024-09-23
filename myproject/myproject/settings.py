@@ -63,6 +63,8 @@ CORS_ALLOW_CREDENTIALS = True  # 쿠키를 허용해야 세션이 작동함
 CORS_ALLOW_ORIGIN = ['http://localhost:63547']  # 클라이언트의 도메인
 CORS_ALLOW_HEADERS = ['content-type', 'X-CSRFToken']  # 필요한 헤더 허용
 
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
