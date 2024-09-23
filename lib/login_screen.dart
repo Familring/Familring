@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text;
 
     try {
-      var url = Uri.parse('http://10.0.2.2:8000/api/login/'); // 각자의 에뮬레이터에 맞게 URL 변경
+      var url = Uri.parse('http://127.0.0.1:8000/api/login/'); // 각자의 에뮬레이터에 맞게 URL 변경
       var response = await http.post(url, body: {
         'username': username,
         'password': password,
