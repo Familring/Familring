@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-^_)j4cfu*7efu2v8&*22ag%+x+_rmz8kl_xk#o_ux9#8+jztqf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'localhost', '192.168.0.107']
 
 
 # Application definition
@@ -52,22 +52,47 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+DEFAULT_CHARSET = 'utf-8'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_SECURE = False  # 로컬 개발 환경에서는 False로 설정
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True  # 모든 요청마다 세션을 저장
 
-
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True  # 쿠키를 허용해야 세션이 작동함
-CORS_ALLOW_ORIGIN = ['http://localhost:63547']  # 클라이언트의 도메인
-CORS_ALLOW_HEADERS = ['content-type', 'X-CSRFToken']  # 필요한 헤더 허용
-
+CORS_ALLOW_ORIGIN = ['http://localhost:8081',
+                     'http://192.168.0.107:8081']  # 클라이언트의 도메인
+CORS_ALLOW_HEADERS = ['content-type', 'X-CSRFToken','authorization']  # 필요한 헤더 허용
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+AUTH_USER_MODEL = 'myapp.User'
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 ROOT_URLCONF = 'myproject.urls'
 
 TEMPLATES = [

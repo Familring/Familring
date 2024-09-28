@@ -1,4 +1,6 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from .views import (
     register, login, get_daily_question, submit_answer,
       get_family_events, add_event,
@@ -11,6 +13,8 @@ urlpatterns = [
     # 회원관리
     path('register/', register, name='register'),
     path('login/', login, name='login'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 
     # 질문
     path('daily-question/', get_daily_question, name='get_daily_question'),

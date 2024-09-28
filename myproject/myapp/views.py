@@ -20,37 +20,36 @@ def register(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
 
-#로그인
 @api_view(['POST'])
+@permission_classes([AllowAny])  # 누구나 접근 가능하게 설정
 def login(request):
     data = request.data
-    try:
-        # 입력된 username에 해당하는 사용자 가져오기
-        user = User.objects.get(username=data['username'])
-    except User.DoesNotExist:
-        return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
+    username = data.get('username')
+    password = data.get('password')
 
-    # 입력된 비밀번호 확인
-    if check_password(data['password'], user.password):
-        # 세션에 사용자 정보 저장
-        request.session['user_id'] = user.user_id
-        request.session['username'] = user.username
-        request.session.save()  # 세션 강제 저장
+    # 사용자 인증
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        # JWT 토큰 생성
+        refresh = RefreshToken.for_user(user)
 
         # 사용자에 연결된 family 정보 가져오기
         family = Family.objects.filter(user=user).first()
-        if family:
-            request.session['family_id'] = family.family_id
-
-
-        print("세션 저장 후 확인:", request.session.get('user_id'), request.session.get('family_id'))
+        family_id = family.family_id if family else None
 
         return Response({
-            'success': 'Login successful',
-            'user_id': user.user_id,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user_id': user.id,
             'username': user.username,
-            'family_id': family.family_id if family else None
+            'family_id': family_id,
         }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
@@ -78,32 +77,30 @@ def submit_answer(request, question_id):
 
 # 버킷리스트 기능
 
-# 버킷리스트 가져오기
-@api_view(['GET'])
-def get_family_bucketlist(request):
-    # 세션에서 사용자 정보 가져오기
-    user_id = request.session.get('user_id')
-    family_id = request.session.get('family_id')
-    print(dir(request.session.get))
-    print(user_id)
-    print(family_id)
-    # family_id를 이용해 family 객체 가져오기
-    family = get_object_or_404(Family, id=family_id)
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
-    # family에 속한 버킷리스트 가져오기
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # 인증된 사용자만 접근 가능
+def get_family_bucketlist(request):
+    user = request.user
+    family = Family.objects.filter(user=user).first()
+    if not family:
+        return Response({'error': 'No family associated with this user'}, status=status.HTTP_400_BAD_REQUEST)
+
     bucketlist = BucketList.objects.filter(family=family)
     serializer = BucketListSerializer(bucketlist, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK,content_type='application/json; charset=utf-8')
 
 # 버킷리스트 추가하기
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])  # JWT 토큰으로 인증된 사용자만 접근 가능
 def add_bucketlist(request):
-    # 세션에서 사용자 정보 가져오기
-    user_id = request.session.get('user_id')
-    family_id = request.session.get('family_id')
+    # 토큰을 통해 인증된 사용자 정보 가져오기
+    user = request.user
 
-    # family_id를 이용해 family 객체 가져오기
-    family = get_object_or_404(Family, id=family_id)
+    # user와 연결된 family 정보 가져오기
+    family = get_object_or_404(Family, user=user)
 
     # 요청 데이터에서 버킷리스트 정보 생성
     data = {
@@ -118,15 +115,16 @@ def add_bucketlist(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # 버킷리스트 완료 처리
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])  # JWT 토큰으로 인증된 사용자만 접근 가능
 def complete_bucketlist(request, bucket_id):
-    # 세션에서 사용자 정보 가져오기
-    user_id = request.session.get('user_id')
-    family_id = request.session.get('family_id')
-
-    # family_id를 이용해 family 객체 가져오기
-    family = get_object_or_404(Family, id=family_id)
+    # 토큰을 통해 인증된 사용자 정보 가져오기
+    user = request.user
+    print(bucket_id)
+    # user와 연결된 family 정보 가져오기
+    family = get_object_or_404(Family, user=user)
 
     # bucket_id에 해당하는 버킷리스트 항목을 완료 처리
     bucketlist = get_object_or_404(BucketList, id=bucket_id, family=family)
