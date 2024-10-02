@@ -5,7 +5,7 @@ from .models import User, Question, Answer, BucketList, Event, Photo, Album, Com
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'password', 'email']
+        fields = ['id', 'username', 'password',]
 
 # 질문 시리얼라이저
 class QuestionSerializer(serializers.ModelSerializer):

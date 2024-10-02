@@ -16,10 +16,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   table_calendar: ^3.0.5
   shared_preferences: ^2.0.6
-  image_picker: ^1.1.2 #갤러리에서 이미지 가져오기
-  permission_handler: ^10.2.0 #권한 요청
-  path_provider: ^2.0.11
-  flutter_image_compress: ^1.1.0 #이미지 크기 줄이기
+  flutter_tts: ^3.8.5
+  image_picker: ^1.1.2
 
 
 dev_dependencies:
@@ -37,3 +35,4 @@ flutter:
     - images/mypage_icon.png
     - images/question.png
     - images/mypage.png
+    - images/test_image.jpg
