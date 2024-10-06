@@ -11,18 +11,31 @@ import 'home_screen.dart';
 import 'calender_component_screen.dart';
 import 'mypage_screen.dart' as mypage; // 별칭 사용하여 중복 방지
 import 'edit_profile_screen.dart';
+import 'package:familring/utils/token_util.dart';
 
-void main() {
-  runApp(MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  double savedFontSize = await getSavedFontSize(); // 저장된 글씨 크기를 가져옴
+  runApp(MyApp(fontSize: savedFontSize));
 }
 
 class MyApp extends StatelessWidget {
+  final double fontSize;
+
+  MyApp({required this.fontSize});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Navigation Bar',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(fontSize: fontSize), // `bodyMedium` 사용
+          bodyLarge: TextStyle(fontSize: fontSize),
+          headlineSmall: TextStyle(fontSize: fontSize), // 헤드라인에도 적용
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: WelcomeScreen(),
@@ -33,8 +46,7 @@ class MyApp extends StatelessWidget {
         '/calender': (context) => CalendarMainScreen(),
         '/bucketlist': (context) => BucketListScreen(),
         '/today_question': (context) => QuestionListScreen(),
-        // 여기에 nickname 값을 전달해야 합니다.
-        '/edit_profile': (context) => EditProfileScreen(nickname: '현재닉네임'), // 실제 로그인한 사용자의 닉네임으로 대체
+        '/edit_profile': (context) => EditProfileScreen(nickname: '닉네임'), // 기본 닉네임 추가
         '/font_size_settings': (context) => FontSizeSettingsScreen(),
       },
     );

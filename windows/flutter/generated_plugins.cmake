@@ -3,10 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-<<<<<<< HEAD
-=======
   file_selector_windows
->>>>>>> b23ec16415797515489362bf40c56b9a772c0740
   flutter_tts
 )
 

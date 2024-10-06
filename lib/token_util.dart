@@ -12,14 +12,14 @@ Future<String?> getToken() async {
   return prefs.getString('auth_token');
 }
 
-// 글씨 크기 저장
+// 글씨 크기를 SharedPreferences에 저장
 Future<void> saveFontSize(double fontSize) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setDouble('font_size', fontSize);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setDouble('fontSize', fontSize);
 }
 
-// 저장된 글씨 크기 불러오기
+// 저장된 글씨 크기를 SharedPreferences에서 불러오기
 Future<double> getSavedFontSize() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getDouble('font_size') ?? 16.0;  // 기본값 16.0
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getDouble('fontSize') ?? 16.0; // 기본 글씨 크기는 16.0
 }

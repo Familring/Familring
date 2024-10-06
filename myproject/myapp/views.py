@@ -115,7 +115,6 @@ def complete_bucketlist(request, bucket_id):
     return Response({"message": "버킷리스트가 완료되었습니다."}, status=status.HTTP_200_OK)
 
 
-<<<<<<< HEAD
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -142,7 +141,7 @@ def update_profile(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=400)
-=======
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_event(request):
@@ -224,10 +223,6 @@ def get_family_furniture(request):
     furniture = Furniture.objects.filter(family=family)
     serializer = FurnitureSerializer(furniture, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
->>>>>>> b23ec16415797515489362bf40c56b9a772c0740
 
 
 
