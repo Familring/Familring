@@ -37,7 +37,7 @@ class SignupScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('회원가입이 완료되었습니다.')),
         );
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       } else {
         var responseData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(

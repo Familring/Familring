@@ -6,6 +6,10 @@ from .serializers import UserSerializer, BucketListSerializer
 from django.contrib.auth.hashers import make_password, check_password
 from datetime import datetime
 from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+
 
 
 # 회원가입
@@ -111,6 +115,7 @@ def complete_bucketlist(request, bucket_id):
     return Response({"message": "버킷리스트가 완료되었습니다."}, status=status.HTTP_200_OK)
 
 
+<<<<<<< HEAD
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -137,6 +142,92 @@ def update_profile(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=400)
+=======
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_event(request):
+    # 현재 사용자로부터 가족을 가져옵니다.
+    family = request.user.family
+
+    # 일정 생성
+    event = Event.objects.create(
+        family=family,
+        event_title=request.data['event_title'],
+        event_content=request.data['event_content'],
+        start_date=request.data['start_date'],
+        end_date=request.data['end_date']
+    )
+
+    # 성공적으로 생성되었음을 응답합니다.
+    return Response({"message": "일정이 추가되었습니다."}, status=status.HTTP_201_CREATED)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_event(request, event_id):
+    try:
+        event = Event.objects.get(id=event_id, family=request.user.family)
+        event.event_title = request.data['event_title']
+        event.event_content = request.data['event_content']
+        event.start_date = request.data['start_date']
+        event.end_date = request.data['end_date']
+        event.save()
+
+        return Response({"message": "일정이 수정되었습니다."}, status=status.HTTP_200_OK)
+    except Event.DoesNotExist:
+        return Response({"error": "일정을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_event(request, event_id):
+    try:
+        event = Event.objects.get(id=event_id, family=request.user.family)
+        event.delete()
+        return Response({"message": "일정이 삭제되었습니다."}, status=status.HTTP_200_OK)
+    except Event.DoesNotExist:
+        return Response({"error": "일정을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+# 사진 앨범 기능
+@api_view(['GET'])
+def get_album_photos(request, album_id):
+    album = Album.objects.get(id=album_id, family=request.user.family)
+    photos = Photo.objects.filter(album=album)
+    serializer = PhotoSerializer(photos, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def upload_photo(request, album_id):
+    album = Album.objects.get(id=album_id, family=request.user.family)
+    photo = Photo.objects.create(
+        album=album,
+        user=request.user,
+        image=request.data['image']
+    )
+    return Response({"message": "사진이 업로드되었습니다."}, status=status.HTTP_201_CREATED)
+
+# 스티커 (가구) 기능
+@api_view(['POST'])
+def add_furniture(request):
+    family = request.user.family
+    furniture = Furniture.objects.create(
+        family=family,
+        furniture_name=request.data['furniture_name'],
+        position_x=request.data['position_x'],
+        position_y=request.data['position_y']
+    )
+    return Response({"message": "가구가 추가되었습니다."}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def get_family_furniture(request):
+    family = request.user.family
+    furniture = Furniture.objects.filter(family=family)
+    serializer = FurnitureSerializer(furniture, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+>>>>>>> b23ec16415797515489362bf40c56b9a772c0740
 
 
 

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'rest_framework_simplejwt',
     'myapp',
 ]
 
@@ -63,7 +64,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True  # 쿠키를 허용해야 세션이 작동함
 CORS_ALLOW_ORIGIN = ['http://localhost:8081',
-                     'http://192.168.0.107:8081']  # 클라이언트의 도메인
+                     'http://10.0.2.2:8000']  # 클라이언트의 도메인
 CORS_ALLOW_HEADERS = ['content-type', 'X-CSRFToken','authorization']  # 필요한 헤더 허용
 CORS_ALLOW_METHODS = [
     'GET',

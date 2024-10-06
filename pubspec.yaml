@@ -16,7 +16,13 @@ dependencies:
   http: ^0.13.4
   cupertino_icons: ^1.0.2
   table_calendar: ^3.0.5
+<<<<<<< HEAD
   shared_preferences: ^2.0.9
+=======
+  shared_preferences: ^2.0.6
+  flutter_tts: ^3.8.5
+  image_picker: ^1.1.2
+>>>>>>> b23ec16415797515489362bf40c56b9a772c0740
 
 
 dev_dependencies:
@@ -34,3 +40,4 @@ flutter:
     - images/mypage_icon.png
     - images/question.png
     - images/mypage.png
+    - images/test_image.jpg
