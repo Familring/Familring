@@ -10,6 +10,25 @@ class Family(models.Model):
     def __str__(self):
         return self.family_name
 
+class FamilyList(models.Model):
+    id = models.AutoField(primary_key=True)
+    family = models.ForeignKey(Family, on_delete=models.CASCADE)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Family: {self.family.family_name}, User: {self.user.username}"
+
+class FamilyRequest(models.Model):
+    id = models.AutoField(primary_key=True)
+    from_user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='sent_requests')
+    to_user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='received_requests')
+    family = models.ForeignKey(Family, on_delete=models.CASCADE)
+    progress = models.CharField(max_length=50, default='진행중')  # 진행 상태 (진행중, 승인, 거절 등)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"FamilyRequest from {self.from_user.username} to {self.to_user.username}"
+
 # User 모델
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -39,6 +58,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 
 class User(AbstractBaseUser, PermissionsMixin):
+    id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=150)

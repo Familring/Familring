@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:familring/utils/token_util.dart';  // 토큰 유틸리티 함수 임포트
 import 'dart:convert';
 import 'font_size_settings_screen.dart'; // 폰트 크기 설정 페이지 import
+import 'family_management_screen.dart';  // 가족 관리 페이지 import
 
 class MyPageScreen extends StatefulWidget {
   @override
@@ -91,6 +92,16 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => FontSizeSettingsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('가족 추가하기'),  // 가족 추가하기 메뉴
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FamilyManagementScreen()), // 가족 관리 페이지로 이동
                 );
               },
             ),

@@ -1,16 +1,22 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import User, BucketList, Family
-from .serializers import UserSerializer, BucketListSerializer
+from .models import User, BucketList, Family, FamilyRequest, FamilyList
+from .serializers import UserSerializer, BucketListSerializer, FamilySerializer, \
+    FamilyRequestSerializer
 from django.contrib.auth.hashers import make_password, check_password
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
 
 
-
+@api_view(['GET'])
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return Response({'csrfToken': csrf_token})
 
 # 회원가입
 @api_view(['POST'])
@@ -21,7 +27,8 @@ def register(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
@@ -141,6 +148,127 @@ def update_profile(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def get_all_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(
+        serializer.data,
+        status=200,
+        content_type='application/json; charset=utf-8'
+    )
+
+# 사용자 검색 기능
+@api_view(['GET'])
+def search_user(request):
+    username = request.GET.get('username')
+    if not username:
+        return Response(
+            {'error': 'Username parameter is required'},
+            status=400,
+            content_type='application/json; charset=utf-8'
+        )
+
+    try:
+        user = User.objects.get(username=username)
+        serializer = UserSerializer(user)
+        return Response(
+            serializer.data,
+            status=200,
+            content_type='application/json; charset=utf-8'
+        )
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'User not found'},
+            status=404,
+            content_type='application/json; charset=utf-8'
+        )
+
+# 가족 초대 요청 생성
+@api_view(['POST'])
+def send_family_invitation(request):
+    data = request.data
+    from_user = request.user
+    to_user = get_object_or_404(User, id=data['to_user_id'])
+
+    # from_user의 family를 가져오기
+    try:
+        family = Family.objects.get(user=from_user)  # Family와 User가 연결된 부분
+    except Family.DoesNotExist:
+        return Response({"error": "사용자의 가족 정보를 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+    # 이미 초대된 사용자인지 확인
+    if FamilyRequest.objects.filter(from_user=from_user, to_user=to_user, family=family).exists():
+        return Response({"error": "이미 가족 초대를 보냈습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 가족 초대 요청 생성
+    FamilyRequest.objects.create(
+        from_user=from_user,
+        to_user=to_user,
+        family=family,
+        progress='진행중'
+    )
+
+    return Response({"message": "가족 초대 요청이 전송되었습니다."}, status=status.HTTP_201_CREATED)
+
+# 가족 초대 요청 상태 확인
+@api_view(['GET'])
+def check_invitation_status(request):
+    requests = FamilyRequest.objects.filter(to_user=request.user)
+    response_data = []
+    for request in requests:
+        response_data.append({
+            'from_user': request.from_user.nickname,
+            'family_id': request.family.family_id,
+            'progress': request.progress,
+        })
+    return Response(response_data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def pending_family_request(request):
+    """
+    진행 중인 가족 초대 요청을 가져오는 API.
+    로그인한 사용자에게 도착한 초대 요청이 있는지 확인합니다.
+    """
+    try:
+        # 현재 사용자가 받은 초대 요청 중 진행중인 요청 가져오기
+        pending_requests = FamilyRequest.objects.filter(to_user=request.user, progress='진행중')
+
+        if not pending_requests.exists():
+            print("????")
+            return Response({"message": "진행중인 가족 초대 요청이 없습니다."}, status=status.HTTP_200_OK)
+
+        # 여러 초대 요청 중 첫 번째 요청만 처리
+        pending_request = pending_requests.first()
+        serializer = FamilyRequestSerializer(pending_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# 가족 초대 승인/거절
+@api_view(['POST'])
+def respond_to_invitation(request):
+    data = request.data
+    family_request = get_object_or_404(FamilyRequest, id=data['request_id'])
+
+    if data['action'] == '승인':
+        # FamilyList에 추가
+        FamilyList.objects.create(
+            family=family_request.family,
+            user=request.user
+        )
+        family_request.progress = '승인'
+        family_request.save()
+        return Response({"message": "가족 초대가 승인되었습니다."}, status=status.HTTP_200_OK)
+    elif data['action'] == '거절':
+        family_request.progress = '거절'
+        family_request.save()
+        return Response({"message": "가족 초대가 거절되었습니다."}, status=status.HTTP_200_OK)
+
+    return Response({"error": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

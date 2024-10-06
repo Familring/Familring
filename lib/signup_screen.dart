@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:familring/utils/token_util.dart'; // 토큰 유틸리티 함수 임포트
 
 class SignupScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(); // 이메일 입력 필드 추가
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+  // 회원가입 요청 함수
   void _signup(BuildContext context) async {
     String username = _usernameController.text;
+    String email = _emailController.text; // 이메일 데이터 추가
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
 
@@ -19,13 +23,24 @@ class SignupScreen extends StatelessWidget {
       return;
     }
 
+    // JWT 토큰 가져오기
+    String? token = await getToken();
+    if (token == null) {
+      print('No token found!');
+      return;
+    }
+
     try {
-      var url = Uri.parse('http://10.0.2.2:8000/api/register/');// 각자의 에뮬레이터 or web의 주소에 맞게 URL을 변경할 것
+      var url = Uri.parse('http://127.0.0.1:8000/api/register/');  // 회원가입 URL
       var response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'}, // 서버에 JSON형식의 데이터로 보낼 것임을 선언
-        body: jsonEncode({ //jsonEncode() 함수는 Dart의 Map을 JSON 형식의 문자열로 변환
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',  // JWT 토큰을 헤더에 포함
+        },
+        body: jsonEncode({
           'username': username,
+          'email': email,  // 이메일 데이터 서버로 전달
           'password': password,
         }),
       );
@@ -71,6 +86,13 @@ class SignupScreen extends StatelessWidget {
               ),
             ),
             TextField(
+              controller: _emailController, // 이메일 입력 필드
+              decoration: InputDecoration(
+                labelText: '이메일',
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
               controller: _passwordController,
               decoration: InputDecoration(
                 labelText: '비밀번호',
@@ -98,4 +120,3 @@ class SignupScreen extends StatelessWidget {
     );
   }
 }
-
