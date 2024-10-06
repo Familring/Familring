@@ -1,9 +1,8 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import User, Question, Answer, BucketList, Event, Photo, Album, Furniture, Family
-from .serializers import UserSerializer, QuestionSerializer, BucketListSerializer, EventSerializer, PhotoSerializer, \
-    FurnitureSerializer
+from .models import User, BucketList, Family
+from .serializers import UserSerializer, BucketListSerializer
 from django.contrib.auth.hashers import make_password, check_password
 from datetime import datetime
 from django.shortcuts import get_object_or_404
@@ -54,29 +53,8 @@ def login(request):
     else:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
 
-# 질문 관련 기능
-@api_view(['GET'])
-def get_daily_question(request):
-    today = datetime.today().date()
-    question = Question.objects.filter(created_at=today).first()
-    if not question:
-        return Response({"error": "오늘의 질문이 아직 생성되지 않았습니다."}, status=status.HTTP_404_NOT_FOUND)
-    serializer = QuestionSerializer(question)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-def submit_answer(request, question_id):
-    user = request.user
-    question = Question.objects.get(id=question_id)
-    answer = Answer.objects.create(
-        user=user,
-        question=question,
-        text_a=request.data['answer']
-    )
-    return Response({"message": "답변이 등록되었습니다."}, status=status.HTTP_201_CREATED)
 
 # 버킷리스트 기능
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 
@@ -132,59 +110,33 @@ def complete_bucketlist(request, bucket_id):
     bucketlist.save()
     return Response({"message": "버킷리스트가 완료되었습니다."}, status=status.HTTP_200_OK)
 
-# 일정 관리 기능
-@api_view(['GET'])
-def get_family_events(request):
-    family = request.user.family
-    events = Event.objects.filter(family=family)
-    serializer = EventSerializer(events, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-def add_event(request):
-    family = request.user.family
-    event = Event.objects.create(
-        family=family,
-        event_title=request.data['title'],
-        event_content=request.data['content'],
-        start_date=request.data['start_date'],
-        end_date=request.data['end_date']
-    )
-    return Response({"message": "일정이 추가되었습니다."}, status=status.HTTP_201_CREATED)
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import User
+from .serializers import UserSerializer
+from django.shortcuts import get_object_or_404
 
-# 사진 앨범 기능
-@api_view(['GET'])
-def get_album_photos(request, album_id):
-    album = Album.objects.get(id=album_id, family=request.user.family)
-    photos = Photo.objects.filter(album=album)
-    serializer = PhotoSerializer(photos, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-def upload_photo(request, album_id):
-    album = Album.objects.get(id=album_id, family=request.user.family)
-    photo = Photo.objects.create(
-        album=album,
-        user=request.user,
-        image=request.data['image']
-    )
-    return Response({"message": "사진이 업로드되었습니다."}, status=status.HTTP_201_CREATED)
-
-# 스티커 (가구) 기능
-@api_view(['POST'])
-def add_furniture(request):
-    family = request.user.family
-    furniture = Furniture.objects.create(
-        family=family,
-        furniture_name=request.data['furniture_name'],
-        position_x=request.data['position_x'],
-        position_y=request.data['position_y']
-    )
-    return Response({"message": "가구가 추가되었습니다."}, status=status.HTTP_201_CREATED)
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import User
+from .serializers import UserSerializer
 
 @api_view(['GET'])
-def get_family_furniture(request):
-    family = request.user.family
-    furniture = Furniture.objects.filter(family=family)
-    serializer = FurnitureSerializer(furniture, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+def get_profile(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+def update_profile(request):
+    user = request.user
+    serializer = UserSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+
+

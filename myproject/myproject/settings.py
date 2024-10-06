@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-^_)j4cfu*7efu2v8&*22ag%+x+_rmz8kl_xk#o_ux9#8+jztqf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'localhost', '192.168.0.107']
+ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'localhost', '192.168.0.107', '172.30.149.130', '172.30.1.79']
 
 
 # Application definition
@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 DEFAULT_CHARSET = 'utf-8'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_SECURE = False  # 로컬 개발 환경에서는 False로 설정
